@@ -23,11 +23,11 @@ jobs:
 
           dpkg -i sing-box-linux-amd64.deb
           apt-get install -f -y
-          mv config.json /etc/sing-box/config.json
-          systemctl start sing-box.service
+          EOF
+          sudo mv config.json /etc/sing-box/config.json
+          sudo systemctl start sing-box.service
           systemctl status  sing-box.service
           sleep 5
-          EOF
-          
+
       - name: Check IP
         run: curl ipinfo.io
