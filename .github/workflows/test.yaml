@@ -1,4 +1,4 @@
-name: Test Proxy
+name: sing-box global proxy
 
 on: [push]
 
@@ -6,23 +6,25 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    env:
+      http_proxy: http://127.0.0.1:7890
+      https_proxy: http://127.0.0.1:7890
+      all_proxy: socks5://127.0.0.1:7890
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Download sing-box
+      # 安装 sing-box（.deb）
+      - name: Install sing-box
         run: |
-          URL=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest  |  jq -r '.assets[] | select(.name | test("^sing-box-.*-linux-amd64\\.tar\\.gz$"))  | .browser_download_url')
-          echo "URL=$URL"
+          wget https://github.com/SagerNet/sing-box/releases/latest/download/sing-box-linux-amd64.deb
+          sudo dpkg -i sing-box-linux-amd64.deb
 
-          wget -O sing-box-linux-amd64.tar.gz "$URL"
-          tar -xvf sing-box-linux-amd64.tar.gz
-          mv sing-box*/sing-box ./sing-box
-          chmod +x sing-box
-
+      # 写配置
       - name: Write config
         run: |
-          cat > config.json << 'EOF'
+          sudo mkdir -p /etc/sing-box
+          sudo tee /etc/sing-box/config.json > /dev/null << 'EOF'
           {
             "log": { "level": "info" },
             "inbounds": [
@@ -54,11 +56,13 @@ jobs:
           }
           EOF
 
+      # 启动 sing-box（⚠️ 不用 systemctl）
       - name: Start sing-box
         run: |
-          nohup ./sing-box run -c config.json > sb.log 2>&1 &
+          nohup sing-box run -c /etc/sing-box/config.json > /tmp/sb.log 2>&1 &
           sleep 5
 
+      # 测试
       - name: Test proxy
         run: |
           curl -x http://127.0.0.1:7890 ipinfo.io
