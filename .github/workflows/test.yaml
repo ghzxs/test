@@ -25,7 +25,7 @@ jobs:
           apt-get install -f -y
           EOF
           sudo mv config.json /etc/sing-box/config.json
-          ls
+          cat /etc/sing-box/config.json
           sudo systemctl start sing-box.service
           systemctl status  sing-box.service
           sleep 6
