@@ -1,4 +1,4 @@
-name: Use WARP in Actions
+name: Test Proxy
 
 on: [push]
 
@@ -7,28 +7,59 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 拉取仓库
+      - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install WARP
+      - name: Download sing-box
         run: |
-          sudo -i bash <<'EOF'
-          set +e
-          apt-get update
-          apt-get install -y curl 
-          URL=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest  |  jq -r '.assets[] | select(.name | test("^sing-box_.*_linux_amd64\\.deb$"))  | .browser_download_url')
+          URL=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest  |  jq -r '.assets[] | select(.name | test("^sing-box-.*-linux-amd64\\.tar\\.gz$"))  | .browser_download_url')
           echo "URL=$URL"
 
-          wget -O sing-box-linux-amd64.deb "$URL"
+          wget -O sing-box-linux-amd64.tar.gz "$URL"
+          tar -xvf sing-box-linux-amd64.tar.gz
+          mv sing-box*/sing-box ./sing-box
+          chmod +x sing-box
 
-          dpkg -i sing-box-linux-amd64.deb
-          apt-get install -f -y
+      - name: Write config
+        run: |
+          cat > config.json << 'EOF'
+          {
+            "log": { "level": "info" },
+            "inbounds": [
+              {
+                "type": "mixed",
+                "listen": "127.0.0.1",
+                "listen_port": 7890
+              }
+            ],
+            "outbounds": [
+              {
+                "type": "vless",
+                "server": "104.19.69.45",
+                "server_port": 8443,
+                "uuid": "01d1730d-e5e8-474a-8ffe-d80106c877a8",
+                "tls": {
+                  "enabled": true,
+                  "server_name": "wpg.zxs.us.kg"
+                },
+                "transport": {
+                  "type": "ws",
+                  "path": "/?ed=2560",
+                  "headers": {
+                    "Host": "wpg.zxs.us.kg"
+                  }
+                }
+              }
+            ]
+          }
           EOF
-          sudo mv config.json /etc/sing-box/config.json
-          cat /etc/sing-box/config.json
-          sudo systemctl start sing-box.service
-          systemctl status  sing-box.service
-          sleep 6
 
-      - name: Check IP
-        run: curl ipinfo.io
+      - name: Start sing-box
+        run: |
+          nohup ./sing-box run -c config.json > sb.log 2>&1 &
+          sleep 5
+
+      - name: Test proxy
+        run: |
+          curl -x http://127.0.0.1:7890 https://www.google.com -I
+          curl ipinfo.io
