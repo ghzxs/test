@@ -61,5 +61,5 @@ jobs:
 
       - name: Test proxy
         run: |
-          curl -x http://127.0.0.1:7890 https://www.google.com -I
+          curl -x http://127.0.0.1:7890 ipinfo.io
           curl ipinfo.io
