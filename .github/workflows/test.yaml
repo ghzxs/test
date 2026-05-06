@@ -1,0 +1,23 @@
+name: Use WARP in Actions
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install WARP
+        run: |
+          curl https://pkg.cloudflareclient.com/pubkey.gpg | sudo gpg --yes --dearmor --output /usr/share/keyrings/cloudflare-warp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/cloudflare-warp-archive-keyring.gpg] https://pkg.cloudflareclient.com/ focal main" | sudo tee /etc/apt/sources.list.d/cloudflare-client.list
+          sudo apt update
+          sudo apt install cloudflare-warp -y
+          - name: Connect to WARP
+        run: |
+          warp-cli register
+          warp-cli set-mode warp
+          warp-cli connect
+          warp-cli status
+      - name: Check IP
+        run: curl ifconfig.me
