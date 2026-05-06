@@ -25,9 +25,10 @@ jobs:
           apt-get install -f -y
           EOF
           sudo mv config.json /etc/sing-box/config.json
+          ls
           sudo systemctl start sing-box.service
           systemctl status  sing-box.service
-          sleep 5
+          sleep 6
 
       - name: Check IP
         run: curl ipinfo.io
