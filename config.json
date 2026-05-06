@@ -33,12 +33,7 @@
 			  },
 			  {
 				"tag": "dns_fakeip",
-				"type": "fakeip",
-				"fakeip": {
-				  "enabled": true,
-				  "inet4_range": "198.18.0.0/15",
-				  "inet6_range": "fc00::/18"
-				}
+				"address": "fakeip"
 			  }
 			],
 			"rules": [
@@ -72,6 +67,11 @@
 				"server": "dns_fakeip"
 			  }
 			],
+			"fakeip": {
+			  "enabled": true,
+			  "inet4_range": "198.18.0.0/15",
+			  "inet6_range": "fc00::/18"
+			},
 			"independent_cache": true,
 			"final": "proxydns"
 		  },
@@ -169,7 +169,7 @@
 				"tag": "Hysteria2-hax",
 				"type": "hysteria2",
 				"server": "hy2.zxs.us.kg",
-				"server_port": 1443,
+				"server_port": 1444,
 				"password": "HbqJ6E1dfUuC2m5RdaKHJbyopz0",
 				"tls": {
 				"enabled": true,
