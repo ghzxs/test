@@ -12,34 +12,16 @@ jobs:
           sudo -i bash <<'EOF'
           set +e
           apt-get update
-          apt-get install -y curl dnsutils
+          apt-get install -y curl 
+          URL=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest  |  jq -r '.assets[] | select(.name | test("^sing-box_.*_linux_amd64\\.deb$"))  | .browser_download_url')
+          echo "URL=$URL"
 
-          echo "[INFO] 停用 systemd-resolved，设置公共 DNS..."
-          systemctl stop systemd-resolved 2>/dev/null || true
-          systemctl disable systemd-resolved 2>/dev/null || true
+          wget -O sing-box-linux-amd64.deb "$URL"
 
-          rm -f /etc/resolv.conf
-          cat > /etc/resolv.conf <<'RESOLV'
-          nameserver 1.1.1.1
-          nameserver 8.8.8.8
-          nameserver 1.0.0.1
-          RESOLV
-
-          sleep 2
-
-          echo "[INFO] DNS 测试:"
-          nslookup host2play.gratis 1.1.1.1 || echo "[WARN] 解析失败"
-
-          echo ""
-          echo "[INFO] 当前出口 IP:"
-          curl -s --max-time 10 https://api.ipify.org || true
-          echo
-          echo "[INFO] WARP Trace:"
-          curl -s --max-time 10 https://www.cloudflare.com/cdn-cgi/trace | grep -E 'ip=|warp=|loc=' || true
-          curl -s4 ip.sb || true
-          curl -s6 ip.sb || true
-
-          wget -N https://gitlab.com/fscarmen/warp/-/raw/main/menu.sh && bash menu.sh d
+          sudo dpkg -i sing-box-linux-amd64.deb
+          sudo apt-get install -f -y
+          mv config.json /etc/sing-box/config.json
+          systemctl start sing-box.service
           EOF
       - name: Check IP
-        run: curl ifconfig.me
+        run: curl ipinfo.io
