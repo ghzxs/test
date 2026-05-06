@@ -20,8 +20,9 @@ jobs:
 
           sudo dpkg -i sing-box-linux-amd64.deb
           sudo apt-get install -f -y
-          mv config.json /etc/sing-box/config.json
-          systemctl start sing-box.service
           EOF
+          sudo mv config.json /etc/sing-box/config.json
+          sudo systemctl start sing-box.service
+          
       - name: Check IP
         run: curl ipinfo.io
