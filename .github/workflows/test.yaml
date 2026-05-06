@@ -17,7 +17,11 @@ jobs:
       # 安装 sing-box（.deb）
       - name: Install sing-box
         run: |
-          wget https://github.com/SagerNet/sing-box/releases/latest/download/sing-box-linux-amd64.deb
+          URL=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest  |  jq -r '.assets[] | select(.name | test("^sing-box_.*_linux_amd64\\.deb$"))  | .browser_download_url')
+          echo "URL=$URL"
+
+          wget -O sing-box-linux-amd64.deb "$URL"
+
           sudo dpkg -i sing-box-linux-amd64.deb
 
       # 写配置
