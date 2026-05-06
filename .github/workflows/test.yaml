@@ -7,6 +7,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: 拉取仓库
+        uses: actions/checkout@v4
+
       - name: Install WARP
         run: |
           sudo -i bash <<'EOF'
@@ -21,6 +24,7 @@ jobs:
           sudo dpkg -i sing-box-linux-amd64.deb
           sudo apt-get install -f -y
           EOF
+          ls
           sudo mv config.json /etc/sing-box/config.json
           sudo systemctl start sing-box.service
           
