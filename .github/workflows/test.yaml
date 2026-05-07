@@ -26,14 +26,14 @@ jobs:
           sleep 5
           curl ipinfo.io
 
-      - name: Enable proxy
-        run: |
-          echo "http_proxy=http://127.0.0.1:7890" >> $GITHUB_ENV
-          echo "https_proxy=http://127.0.0.1:7890" >> $GITHUB_ENV
-          echo "all_proxy=socks5://127.0.0.1:7890" >> $GITHUB_ENV
+      # - name: Enable proxy
+      #   run: |
+      #     echo "http_proxy=http://127.0.0.1:7890" >> $GITHUB_ENV
+      #     echo "https_proxy=http://127.0.0.1:7890" >> $GITHUB_ENV
+      #     echo "all_proxy=socks5://127.0.0.1:7890" >> $GITHUB_ENV
 
       # 测试
       - name: Test proxy
         run: |
-          curl -x http://127.0.0.1:7890 ipinfo.io
           curl ipinfo.io
+          curl -x http://127.0.0.1:7890 ipinfo.io
