@@ -12,29 +12,23 @@ jobs:
       # 安装 sing-box（.deb）
       - name: Install sing-box
         run: |
-          URL=$(curl -s https://api.github.com/repos/SagerNet/sing-box/releases/latest  |  jq -r '.assets[] | select(.name | test("^sing-box_.*_linux_amd64\\.deb$"))  | .browser_download_url')
-          echo "URL=$URL"
-
-          wget -O sing-box-linux-amd64.deb "$URL"
-
-          sudo dpkg -i sing-box-linux-amd64.deb
+          wget -q https://github.com/XTLS/Xray-core/releases/latest/download/Xray-linux-64.zip
+          unzip -q Xray-linux-64.zip -d xray && chmod +x xray/xray
 
       # 启动 sing-box（⚠️ 不用 systemctl）
       - name: Start sing-box
         run: |
-          sudo mv config.json /etc/sing-box/config.json
-          sudo systemctl start sing-box
+          ./xray/xray run -c xray_config.json > xray.log 2>&1 &
           sleep 5
           curl ipinfo.io
 
       # - name: Enable proxy
       #   run: |
-      #     echo "http_proxy=http://127.0.0.1:7890" >> $GITHUB_ENV
-      #     echo "https_proxy=http://127.0.0.1:7890" >> $GITHUB_ENV
-      #     echo "all_proxy=socks5://127.0.0.1:7890" >> $GITHUB_ENV
+      #     echo "proxy_server=socks5://127.0.0.1:1080" >> $GITHUB_OUTPUT
+      #     echo "use_proxy=true" >> $GITHUB_OUTPUT
 
       # 测试
       - name: Test proxy
         run: |
           curl ipinfo.io
-          curl -x http://127.0.0.1:7890 ipinfo.io
+          curl -x socks5://127.0.0.1:1080 ipinfo.io
