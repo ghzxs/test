@@ -22,7 +22,8 @@ jobs:
       # 启动 sing-box（⚠️ 不用 systemctl）
       - name: Start sing-box
         run: |
-          nohup sing-box run -c config.json > /tmp/sb.log 2>&1 &
+          sudo mv config.json /etc/sing-box/config.json
+          sudo systemctl start sing-box
           sleep 5
           curl ipinfo.io
 
