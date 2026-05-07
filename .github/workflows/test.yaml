@@ -24,7 +24,6 @@ jobs:
         run: |
           nohup sing-box run -c /etc/sing-box/config.json > /tmp/sb.log 2>&1 &
           sleep 5
-          curl -x http://127.0.0.1:7890 ipinfo.io
           curl ipinfo.io
 
       - name: Enable proxy
