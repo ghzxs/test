@@ -19,47 +19,13 @@ jobs:
 
           sudo dpkg -i sing-box-linux-amd64.deb
 
-      # 写配置
-      - name: Write config
-        run: |
-          sudo mkdir -p /etc/sing-box
-          sudo tee /etc/sing-box/config.json > /dev/null << 'EOF'
-          {
-            "log": { "level": "info" },
-            "inbounds": [
-              {
-                "type": "mixed",
-                "listen": "127.0.0.1",
-                "listen_port": 7890
-              }
-            ],
-            "outbounds": [
-              {
-                "type": "vless",
-                "server": "104.19.69.45",
-                "server_port": 8443,
-                "uuid": "01d1730d-e5e8-474a-8ffe-d80106c877a8",
-                "tls": {
-                  "enabled": true,
-                  "server_name": "wpg.zxs.us.kg"
-                },
-                "transport": {
-                  "type": "ws",
-                  "path": "/?ed=2560",
-                  "headers": {
-                    "Host": "wpg.zxs.us.kg"
-                  }
-                }
-              }
-            ]
-          }
-          EOF
-
       # 启动 sing-box（⚠️ 不用 systemctl）
       - name: Start sing-box
         run: |
           nohup sing-box run -c /etc/sing-box/config.json > /tmp/sb.log 2>&1 &
           sleep 5
+          curl -x http://127.0.0.1:7890 ipinfo.io
+          curl ipinfo.io
 
       - name: Enable proxy
         run: |
